@@ -13,7 +13,9 @@ BOOL CMainDlg::PreTranslateMessage(MSG* pMsg) {
 }
 
 BOOL CMainDlg::OnIdle() {
-	UIUpdateChildWindows();
+	//UIUpdateChildWindows();
+	UIUpdateToolBar();
+
 	return FALSE;
 }
 
@@ -46,7 +48,7 @@ void CMainDlg::DoPaint(CDCHandle dc) {
 
 		nameRect.left = nameRect.right + 10;
 		if (m_ShowKernelTimes) {
-			nameRect.right = nameRect.left + int(pi.KernelCPU * 3 + .5);
+			nameRect.right = nameRect.left + int(pi.KernelCPU * 3);
 			nameRect.DeflateRect(0, 2);
 			dc.FillRect(nameRect, m_KernelBrush);
 			nameRect.left = nameRect.right;
@@ -73,14 +75,19 @@ DWORD CMainDlg::OnPrePaint(int, LPNMCUSTOMDRAW cd) {
 		dc.FillRect(&cd->rc, (HBRUSH)::GetStockObject(BLACK_BRUSH));
 		return CDRF_NOTIFYITEMDRAW;
 	}
+	SetMsgHandled(FALSE);
 	return CDRF_DODEFAULT;
 }
 
 DWORD CMainDlg::OnItemPrePaint(int, LPNMCUSTOMDRAW cd) {
-	auto tb = (LPNMTBCUSTOMDRAW)cd;
-	//tb->clrBtnFace = RGB(0, 0, 0);
-	tb->clrHighlightHotTrack = RGB(0, 0, 255);
-	return TBCDRF_USECDCOLORS | TBCDRF_HILITEHOTTRACK;
+	if (cd->hdr.hwndFrom == m_ToolBar) {
+		auto tb = (LPNMTBCUSTOMDRAW)cd;
+		//tb->clrBtnFace = RGB(0, 0, 0);
+		tb->clrHighlightHotTrack = RGB(0, 0, 255);
+		return TBCDRF_USECDCOLORS | TBCDRF_HILITEHOTTRACK;
+	}
+	SetMsgHandled(FALSE);
+	return CDRF_DODEFAULT;
 }
 
 LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
@@ -99,7 +106,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	auto hToolBar = m_ToolBar.Create(*this, rcDefault, nullptr, ATL_SIMPLE_TOOLBAR_STYLE | TBSTYLE_FLAT, 0, ATL_IDW_TOOLBAR);
 	m_ToolBar.SetIndent(4);
-
+	auto tt = m_ToolBar.GetToolTips();
 	int size = 24;
 	CImageList images;
 	images.Create(size, size, ILC_COLOR32, 4, 4);
@@ -116,6 +123,13 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		{ ID_RUN, IDI_PLAY, BTNS_CHECK, TBSTATE_CHECKED | TBSTATE_ENABLED },
 		{ 0 },
 		{ ID_TOGGLE_KERNEL, IDI_ATOM, BTNS_CHECK },
+		{ 0 },
+		{ ID_ALWAYSONTOP, IDI_PIN, BTNS_CHECK },
+		{ 0 },
+		{ ID_SPEED, IDI_SPEED1, BTNS_CHECK },
+		{ ID_SPEED + 1, IDI_SPEED2, BTNS_CHECK },
+		{ ID_SPEED + 2, IDI_SPEED3, BTNS_CHECK },
+		{ ID_SPEED + 3, IDI_SPEED4, BTNS_CHECK },
 	};
 
 	for (auto& b : buttons) {
@@ -126,8 +140,8 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 			m_ToolBar.AddButton(b.id, b.style, b.state, image, b.text, 0);
 		}
 	}
-
 	UIAddToolBar(hToolBar);
+	UISetRadio(ID_SPEED + 1, TRUE);
 
 	// set icons
 	HICON hIcon = AtlLoadIconImage(IDR_MAINFRAME, LR_DEFAULTCOLOR, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON));
@@ -141,7 +155,8 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	UIAddChildWindowContainer(m_hWnd);
+	//UIAddChildWindowContainer(m_hWnd);
+	UIAddToolBar(m_ToolBar);
 
 	m_CpuBrush.CreateSolidBrush(RGB(0, 0, 255));
 	m_KernelBrush.CreateSolidBrush(RGB(255, 0, 0));
@@ -151,10 +166,13 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	return TRUE;
 }
 
-LRESULT CMainDlg::OnTimer(UINT, WPARAM id, LPARAM, BOOL&) {
+LRESULT CMainDlg::OnTimer(UINT, WPARAM id, LPARAM, BOOL& handled) {
 	if (id == 1 && !IsIconic()) {
 		m_ProcMgr.Update();
 		Invalidate(FALSE);
+	}
+	else {
+		handled = FALSE;
 	}
 	return 0;
 }
@@ -199,6 +217,38 @@ LRESULT CMainDlg::OnToggleRun(WORD, WORD wID, HWND, BOOL&) {
 	else
 		KillTimer(1);
 	UISetCheck(ID_RUN, m_Run);
+	return 0;
+}
+
+LRESULT CMainDlg::OnAlwaysOnTop(WORD, WORD wID, HWND, BOOL&) {
+	auto topmost = GetExStyle() & WS_EX_TOPMOST;
+	topmost = !topmost;
+	SetWindowPos(topmost ? HWND_TOPMOST : HWND_NOTOPMOST, CRect(), SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
+	UISetCheck(ID_ALWAYSONTOP, (bool)topmost);
+	return 0;
+}
+
+LRESULT CMainDlg::OnToolTipText(int idCtrl, LPNMHDR pnmh, BOOL&) {
+	auto pDispInfo = (LPNMTTDISPINFOW)pnmh;
+	if ((idCtrl != 0) && !(pDispInfo->uFlags & TTF_IDISHWND)) 		{
+		CString text;
+		text.LoadString(idCtrl);
+		if (!text.IsEmpty()) {
+			::wcscpy_s(pDispInfo->szText, text);
+		}
+	}
+	return 0;
+}
+
+LRESULT CMainDlg::OnChangeInterval(WORD, WORD wID, HWND, BOOL&) {
+	UINT intervals[] = { 1500, 1000, 700, 400 };
+	m_Interval = intervals[wID - ID_SPEED];
+	if (m_Run)
+		SetTimer(1, m_Interval, nullptr);
+
+	for (UINT id = ID_SPEED; id <= ID_SPEED + 3; id++)
+		UISetRadio(id, wID == id);
+
 	return 0;
 }
 

@@ -31,7 +31,10 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
 		COMMAND_ID_HANDLER(ID_TOGGLE_KERNEL, OnToggleKernel)
+		COMMAND_ID_HANDLER(ID_ALWAYSONTOP, OnAlwaysOnTop)
 		COMMAND_ID_HANDLER(ID_RUN, OnToggleRun)
+		COMMAND_RANGE_HANDLER(ID_SPEED, ID_SPEED + 3, OnChangeInterval)
+		NOTIFY_CODE_HANDLER(TTN_GETDISPINFOW, OnToolTipText)
 		CHAIN_MSG_MAP(CDoubleBufferImpl<CMainDlg>)
 		CHAIN_MSG_MAP(CCustomDraw<CMainDlg>)
 	END_MSG_MAP()
@@ -50,6 +53,9 @@ private:
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnToggleKernel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnToggleRun(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnAlwaysOnTop(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnToolTipText(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+	LRESULT OnChangeInterval(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void CloseDialog(int nVal);
 
@@ -58,7 +64,8 @@ private:
 	CBrush m_CpuBrush, m_KernelBrush;
 	CToolBarCtrl m_ToolBar;
 	int m_LineHeight = 20;
-	int m_Interval{ 750 };
+	int m_Interval{ 1000 };
+	UINT m_IntervalID{ ID_SPEED + 1 };
 	bool m_ShowKernelTimes{ false };
 	bool m_Run{ true };
 };

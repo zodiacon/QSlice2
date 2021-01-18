@@ -57,6 +57,16 @@ IDI_ATOM                ICON                    "res\\atom.ico"
 
 IDI_PLAY                ICON                    "res\\play.ico"
 
+IDI_PIN                 ICON                    "res\\pin.ico"
+
+IDI_SPEED1              ICON                    "res\\gauge_dial_1.ico"
+
+IDI_SPEED2              ICON                    "res\\gauge_dial_2.ico"
+
+IDI_SPEED3              ICON                    "res\\gauge_dial_3.ico"
+
+IDI_SPEED4              ICON                    "res\\gauge_dial_4.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -257,7 +267,13 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_RUN                  "Run/Pause\nRun/Pause"
+    ID_TOGGLE_KERNEL        "Show/Hide Kernel Times"
+    ID_RUN                  "Run/Pause"
+    ID_ALWAYSONTOP          "Always On Top"
+    ID_SPEED                "Slow"
+    105                     "Normal"
+    IDS_STRING106           "Fast"
+    IDS_STRING107           "Very Fast"
 END
 
 #endif    // English (United States) resources

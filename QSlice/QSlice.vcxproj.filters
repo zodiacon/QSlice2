@@ -13,6 +13,9 @@
       <UniqueIdentifier>{ef86a815-9f33-49ea-bb3b-e2c8973b3cb1}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Icons">
+      <UniqueIdentifier>{f86d5617-6606-49e6-9b5d-9d184becdc39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="QSlice.cpp">
@@ -54,14 +57,29 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\QSlice.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="res\atom.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\gauge_dial_1.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\gauge_dial_2.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\gauge_dial_3.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\gauge_dial_4.ico">
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\pin.ico">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
     <Image Include="res\play.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Icons</Filter>
+    </Image>
+    <Image Include="res\QSlice.ico">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

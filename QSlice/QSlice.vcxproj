@@ -225,6 +225,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\atom.ico" />
+    <Image Include="res\gauge_dial_1.ico" />
+    <Image Include="res\gauge_dial_2.ico" />
+    <Image Include="res\gauge_dial_3.ico" />
+    <Image Include="res\gauge_dial_4.ico" />
+    <Image Include="res\pin.ico" />
     <Image Include="res\play.ico" />
     <Image Include="res\QSlice.ico" />
   </ItemGroup>
